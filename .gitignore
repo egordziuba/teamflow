@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.runtime/
+runs/
+reports/
+*.sqlite3*
+.venv/

@@ -1,0 +1,9 @@
+id;amount;currency;status
+A001;12,50;EUR;settled
+A002;7,50;EUR;settled
+A002;7,50;EUR;settled
+A003;9,99;USD;settled
+A004;nope;EUR;settled
+A005;-2,00;EUR;settled
+A006;4,00;EUR;pending
+A007;10,00;EUR;settled

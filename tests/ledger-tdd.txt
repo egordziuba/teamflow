@@ -1,0 +1,33 @@
+Ledger vertical TDD evidence (real terminal runs, Python 3.11 unittest)
+Command: python -m unittest discover -s tests -p test_ledger.py -v
+
+1. Strict canonical JSON/hash: RED 1 test, assertion missing ledger module;
+   GREEN 1 test OK. Initial discovery first errored on missing parent package;
+   test adjusted to produce explicit missing-module assertion before implementation.
+2. Verdict validation contract: RED 2 tests, missing validate_verdict assertion;
+   GREEN 2 tests OK. Subtests reject malformed booleans, missing/blank evidence,
+   missing/duplicate criteria, fake PASS, stale hash, extra fields, bad issues.
+3. Durable reservation/read-back/budget/role identity: RED 3 tests, missing
+   RequestLedger assertion; GREEN 3 tests OK. Test-only SQLite inspection handle
+   initially blocked Windows temp cleanup; fixed via contextlib.closing.
+4. Complete exactly once/cached receipt: RED 4 tests, missing complete assertion;
+   GREEN 4 tests OK. Invalid dict/NaN responses leave PENDING unchanged.
+5. Failed request: RED 5 tests, missing fail assertion; GREEN 5 tests OK.
+6. Append-only events/transaction rollback: RED 6 tests, DELETE did not raise;
+   GREEN 6 tests OK after SQL triggers. Injected event insert failures roll back
+   reserve, complete and fail row changes together with events.
+7. Persistent budget cannot expand on restart: RED 7 tests, BudgetExceeded not
+   raised; GREEN 7 tests OK after persistent non-increasing budget limit.
+8. Concurrent first-open/reservations: RED 9 tests, 2 errors from WAL conversion
+   'database is locked'; GREEN 9 tests OK after bounded BUSY/LOCKED retry of
+   idempotent initialization PRAGMA only. No model/request dispatch retry exists.
+   Independent SQLite connections: 8 threads / budget 3 -> 3 PENDING, 5 BUDGET;
+   6 threads / same identity -> 1 PENDING, 5 AMBIGUOUS.
+
+Final run: Ran 9 tests in 0.427s, OK.
+Repeated verification: 10 fresh suites, Ran 90 tests in 4.914s, OK.
+No dependencies, model calls, profiles or commits.
+Limits: thread concurrency exercised (not separate-process kill/power-loss test).
+SQLite evidence contains raw payloads; rows/events omit free-form secrets.
+Event triggers are not tamper-proof against a database owner dropping triggers.
+The journal budget may tighten but cannot be increased by reopening the API.

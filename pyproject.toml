@@ -1,0 +1,9 @@
+[project]
+name = "hermes-project-team"
+version = "0.1.0"
+description = "Evidence-gated, tool-free Hermes multi-agent pilot"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

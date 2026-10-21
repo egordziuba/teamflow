@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Teamflow — журнал команды</title>
+  <link rel="stylesheet" href="/app.css">
+  <script src="/ui-model.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#workspace">К выбранному запуску</a>
+  <header class="topbar">
+    <div class="brand">TEAMFLOW <span>Журнал команды</span></div>
+    <div class="connection"><span class="read-only">Только наблюдение · журнал</span><span id="connection-state" role="status" aria-live="polite">Подключение…</span></div>
+    <button id="refresh" type="button">Обновить</button>
+  </header>
+  <div class="shell">
+    <aside class="sidebar" aria-labelledby="runs-heading">
+      <div class="section-heading"><h1 id="runs-heading">Запуски</h1><span id="run-count" class="muted">—</span></div>
+      <p class="sidebar-note">Состояние по сохранённым записям, не монитор процессов.</p>
+      <nav id="runs" aria-label="Выбор запуска"><p class="empty">Читаем журнал…</p></nav>
+    </aside>
+    <main id="workspace" tabindex="-1">
+      <div id="freshness" class="freshness">Снимок ещё не получен</div>
+      <div id="notice" class="notice" hidden></div>
+      <div id="run-detail"><section class="empty-state"><p class="eyebrow">Наблюдение</p><h2>Загружаем сохранённые запуски</h2><p>Здесь появятся реальные этапы, участники и подтверждения из журнала.</p></section></div>
+    </main>
+  </div>
+  <noscript>Для чтения и обновления журнала требуется JavaScript. Запуски из этого интерфейса не выполняются.</noscript>
+</body>
+</html>
