@@ -3,20 +3,23 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import pytest
+
 from test_workflow import FakeBackend, SOURCE
 from test_specialists import RoutingDouble, BRIEF
+
+pytestmark = pytest.mark.usefixtures('hermes_repo')
 
 
 class NativePipelineTests(unittest.TestCase):
     def test_native_board_roundtrip_csv_repair_and_cache(self):
-        from teamflow.runtime import find_install
         from teamflow.kanban import NativeBoard
         from teamflow.workflow import run_pilot
         with tempfile.TemporaryDirectory() as td:
             base = Path(td)
             root = base / 'run'
             backend = FakeBackend()
-            board = NativeBoard(find_install(), base / 'home', root)
+            board = NativeBoard(self.hermes_repo, base / 'home', root)
             result = run_pilot(root, SOURCE, backend, inject_fault=True, board=board)
             self.assertEqual(result['status'], 'ACCEPTED')
             self.assertEqual(result['mode'], 'TEST_DOUBLE')
@@ -29,13 +32,12 @@ class NativePipelineTests(unittest.TestCase):
             self.assertEqual(board.rows(), rows_before)
 
     def test_native_board_specialist_handoff_drafts_not_project_done(self):
-        from teamflow.runtime import find_install
         from teamflow.kanban import NativeBoard
         from teamflow.specialists import run_specialists
         with tempfile.TemporaryDirectory() as td:
             base = Path(td)
             root = base / 'run'
-            board = NativeBoard(find_install(), base / 'home', root)
+            board = NativeBoard(self.hermes_repo, base / 'home', root)
             backend = RoutingDouble([{'role': 'designer', 'reason': 'Layout needed', 'deliverable': 'Design spec'},
                                      {'role': 'copywriter', 'reason': 'Text needed', 'deliverable': 'Copy draft'}])
             result = run_specialists(root, BRIEF, backend, board=board)

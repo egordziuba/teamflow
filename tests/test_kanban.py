@@ -7,7 +7,9 @@ import sqlite3
 import tempfile
 import unittest
 
-REPO = Path(os.environ.get('TEAMFLOW_TEST_HERMES_REPO', str(Path.home() / 'AppData/Local/hermes/hermes-agent')))
+import pytest
+
+pytestmark = pytest.mark.usefixtures('hermes_repo')
 
 
 class NativeBoardTests(unittest.TestCase):
@@ -23,7 +25,7 @@ class NativeBoardTests(unittest.TestCase):
             module = importlib.import_module('teamflow.kanban')
         except ModuleNotFoundError:
             self.fail('Native Kanban subprocess adapter is not implemented')
-        return module.NativeBoard(REPO, self.home, self.run)
+        return module.NativeBoard(self.hermes_repo, self.home, self.run)
 
     def sql(self, query, args=()):
         with closing(sqlite3.connect(self.run / 'kanban.db')) as conn:
@@ -103,9 +105,9 @@ class NativeBoardTests(unittest.TestCase):
         sentinel.write_text('sentinel', encoding='utf-8')
         with patch.dict(os.environ, {'HERMES_HOME': str(active)}):
             with self.assertRaises(KanbanError):
-                NativeBoard(REPO, active, self.run)
+                NativeBoard(self.hermes_repo, active, self.run)
             with self.assertRaises(KanbanError):
-                NativeBoard(REPO, self.home, active)
+                NativeBoard(self.hermes_repo, self.home, active)
         self.assertEqual(sentinel.read_text(encoding='utf-8'), 'sentinel')
         self.assertEqual(list(active.iterdir()), [sentinel])
 
@@ -130,7 +132,7 @@ class NativeBoardTests(unittest.TestCase):
                    board.start(7, 'reviewer', {}), board.start(8, 'developer', {})]
         self.assertEqual(len({h['id'] for h in handles}), 4)
         from teamflow.kanban import NativeBoard
-        other = NativeBoard(REPO, self.home, self.root / 'other-run')
+        other = NativeBoard(self.hermes_repo, self.home, self.root / 'other-run')
         other.start(7, 'developer', {})
         self.assertNotEqual(board.rows()[0]['idempotency_key'], other.rows()[0]['idempotency_key'])
 

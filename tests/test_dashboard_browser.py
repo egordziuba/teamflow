@@ -1,7 +1,10 @@
 """Browser exercises the real read-only server against a clearly test-only producer."""
 import threading
-from pathlib import Path
-from playwright.sync_api import sync_playwright, expect
+
+import pytest
+
+playwright = pytest.importorskip('playwright.sync_api', reason='Playwright is not installed')
+sync_playwright, expect = playwright.sync_playwright, playwright.expect
 
 from teamflow.dashboard import create_server
 from teamflow.ledger import RequestLedger
@@ -18,7 +21,12 @@ def test_browser_observes_new_steps_without_running_agents(tmp_path):
     errors = []
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
+            try:
+                browser = p.chromium.launch(headless=True)
+            except playwright.Error as error:
+                if "Executable doesn't exist at" in str(error):
+                    pytest.skip('Playwright Chromium browser is not installed; run playwright install chromium')
+                raise
             page = browser.new_page(viewport={'width': 900, 'height': 900})
             page.on('pageerror', lambda error: errors.append(str(error)))
             page.goto(f'http://127.0.0.1:{server.server_port}/')

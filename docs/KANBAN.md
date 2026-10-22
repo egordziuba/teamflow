@@ -82,14 +82,19 @@ or exception messages. Parent failures raise `KanbanError` with fixed class labe
 From the project directory:
 
 ```sh
-python -m unittest discover -s tests -p test_kanban.py -v
+python -m pytest tests/test_kanban.py -v
 ```
 
 Tests use temporary isolated homes and real installed-interpreter subprocesses,
 then inspect actual SQLite rows/history. No LLM, network authentication or mocked
 board implementation is used. `TEAMFLOW_TEST_HERMES_REPO` optionally selects an
-installed repo for the tests; absent that, the Windows user-local installation is
-used. Missing installations fail visibly rather than silently skipping evidence.
+installed repo for the tests; absent that, `teamflow.runtime.find_install()`
+detects Hermes on PATH. The shared fixture validates the selected repo with
+`runtime_python()`, and integration tests use that same resolved repo.
+Missing or unusable installations skip by default with a clear reason. Set
+`TEAMFLOW_REQUIRE_HERMES=1` to make missing integration prerequisites fail via
+`pytest.fail()` instead (reported by pytest as fixture setup errors). A present
+but API-incompatible Hermes still fails its integration tests in either mode.
 
 Covered: claim/completion, restart dedup, matching/mismatching completed replay,
 fenced block, stale/null/boolean handles, foreign task/run leases, per-root/request/

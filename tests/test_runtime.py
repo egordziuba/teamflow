@@ -3,6 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+import pytest
+
 
 class RuntimeTests(unittest.TestCase):
     def test_clean_environment_excludes_inherited_authority(self):
@@ -20,10 +22,11 @@ class RuntimeTests(unittest.TestCase):
             for key in ['HERMES_KANBAN_TASK', 'HERMES_YOLO_MODE', 'OPENAI_API_KEY', 'PYTHONPATH']:
                 self.assertNotIn(key, env)
 
+    @pytest.mark.usefixtures('hermes_repo')
     def test_prepare_real_isolated_profile_idempotent_and_closed(self):
         import teamflow.runtime as rt
         self.assertTrue(hasattr(rt, 'prepare_runtime'), 'Profile bootstrap missing')
-        repo = rt.find_install()
+        repo = self.hermes_repo
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             home = rt.prepare_runtime(root, repo, role_ids=['analyst'])
@@ -38,16 +41,17 @@ class RuntimeTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 rt.prepare_runtime(root, repo, role_ids=['analyst'])
 
+    @pytest.mark.usefixtures('hermes_repo')
     def test_root_configuration_and_plugins_cannot_bypass_profile_preflight(self):
-        from teamflow.runtime import prepare_runtime, inspect_runtime, find_install
+        from teamflow.runtime import prepare_runtime, inspect_runtime
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            home = prepare_runtime(root, find_install(), role_ids=['analyst'])
+            home = prepare_runtime(root, self.hermes_repo, role_ids=['analyst'])
             (home / 'plugins' / 'unexpected').mkdir(parents=True)
             self.assertFalse(inspect_runtime(root, ['analyst'])['profiles_ok'])
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            home = prepare_runtime(root, find_install(), role_ids=['analyst'])
+            home = prepare_runtime(root, self.hermes_repo, role_ids=['analyst'])
             (home / 'config.yaml').write_text('{}', encoding='utf-8')
             self.assertFalse(inspect_runtime(root, ['analyst'])['profiles_ok'])
 
