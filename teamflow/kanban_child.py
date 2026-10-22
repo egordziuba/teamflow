@@ -28,9 +28,13 @@ def require_owned_run(conn, task, run_id, owner):
 def execute(payload):
     sys.path.insert(0, payload['repo'])
     from hermes_cli import kanban_db as db
+    try:
+        connect = db.connect
+    except AttributeError:
+        from hermes_cli.kanban_db_connect import connect
     root = Path(payload['run_root']).resolve()
     owner = 'teamflow:' + digest(os.path.normcase(str(root)))
-    conn = db.connect(root / 'kanban.db')
+    conn = connect(root / 'kanban.db')
     try:
         operation = payload['operation']
         if operation == 'start':
