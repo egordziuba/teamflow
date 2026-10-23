@@ -1,3 +1,5 @@
+[![Tests](https://github.com/egordziuba/teamflow/actions/workflows/tests.yml/badge.svg)](https://github.com/egordziuba/teamflow/actions/workflows/tests.yml)
+
 # Teamflow — an evidence-gated multi-agent team on Hermes Agent
 
 A local orchestration layer that runs a small team of role-based agents ([Hermes Agent](https://hermes-agent.nousresearch.com/)) through a controlled workflow: coordinator → analyst → implementer → independent verifier. The controller, not the model, decides what counts as done.
@@ -14,6 +16,11 @@ Project documentation is in Russian ([README.ru.md](README.ru.md), [docs/](docs/
 - **13 roles in total**: the four core roles plus specialists (designer, copywriter, researcher, SEO, localisation, data, documents, UI tester, architect) that the coordinator requests only when needed. Their output is marked `DRAFTS_REQUIRE_REVIEW`, never "done".
 - **Read-only observer dashboard** (`python -m teamflow.dashboard --open`, http://127.0.0.1:8769/) showing stages, hand-offs, stops and evidence without starting agents.
 
+![Observer dashboard: stages, hand-offs and a rejected candidate repaired on the second attempt](docs/img/dashboard-overview.png)
+![Observer dashboard: acceptance evidence and the verified CSV artifact](docs/img/dashboard-evidence.png)
+
+Fictional CSV fixture, with no model calls: stage hand-offs and verified acceptance; reproduce with `python scripts/make_screenshots.py`.
+
 ## Scenarios
 
 | Command | What it does |
@@ -29,6 +36,6 @@ Python 3.11+, a local Hermes Agent installation with its Python environment. `py
 
 ## Tests
 
-`python -m pytest -q` (137 tests) and `node --test tests/*.cjs` for the dashboard UI model. Integration tests that talk to the native Hermes board need a local Hermes installation; the browser test needs Playwright.
+As of 2026-10-23, `python -m pytest -q`: 143 passed with Hermes; 126 passed, 17 skipped without Hermes (Playwright Chromium installed in both cases). `node --test tests/*.cjs`: 2 passed for the dashboard UI model. Integration tests that talk to the native Hermes board need a local Hermes installation; the browser test needs Playwright.
 
 All examples are fictional; `runs/`, `reports/` and `.runtime/` are git-ignored.
